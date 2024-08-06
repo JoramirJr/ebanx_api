@@ -10,9 +10,24 @@ function getAccountBalance(account_id) {
   return accounts[account_id]?.balance;
 }
 
-function createAccount(type, destination, amount) {
-  const _ = Object.keys().includes(id_counter + 1);
-  return accounts[]
+function createOrUpdateAccount(type, destination, amount) {
+  if (accounts[destination]) {
+    const currAmount = accounts[destination].amount;
+    if (type === "deposit") {
+      accounts[destination] = { amount: currAmount + amount };
+    } else if (type === "withdraw") {
+      accounts[destination] = { amount: currAmount - amount };
+    }
+  } else {
+    if (type === "deposit") {
+      accounts[destination] = { amount, type };
+    } else if (type === "withdraw"){
+      return;
+    }
+  }
+  return {
+    destination: { id: destination, balance: accounts[destination].balance },
+  };
 }
 
-module.exports = { resetAccounts, getAccountBalance };
+module.exports = { resetAccounts, getAccountBalance, createOrUpdateAccount };

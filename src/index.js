@@ -1,5 +1,9 @@
 const express = require("express");
-const { resetAccounts, getAccountBalance } = require("./handlers");
+const {
+  resetAccounts,
+  getAccountBalance,
+  createOrUpdateAccount,
+} = require("./handlers");
 
 const app = express();
 
@@ -22,12 +26,8 @@ app.get("/balance", (req, res) => {
 
 app.post("/event", (req, res) => {
   const { type, destination, amount } = req.body;
-  const account_balance = getAccountBalance(id);
-  if (account_balance) {
-    res.status(200).send(account_balance);
-  } else {
-    res.status(200).send("OK");
-  }
+
+  createOrUpdateAccount(type, destination, amount);
 });
 
 app.listen(3001, () => {
