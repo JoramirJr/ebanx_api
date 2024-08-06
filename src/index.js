@@ -9,7 +9,7 @@ const app = express();
 
 app.use(express.json());
 
-app.get("/reset", (_, res) => {
+app.post("/reset", (_, res) => {
   resetAccounts();
   res.status(200).send("OK");
 });
