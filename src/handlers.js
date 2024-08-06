@@ -1,7 +1,7 @@
 let accounts = {};
 
 const notFoundResponse = {
-  body: 0,
+  body: "0",
   status: 404,
 };
 
@@ -14,17 +14,21 @@ function getAccountBalance(account_id) {
 }
 
 function transfer({ origin, destination, amount }) {
-  if (accounts[origin] && accounts[destination]) {
-    const origin = accounts[origin];
-    const destination = accounts[destination];
-    origin.balance = origin.balance - amount;
-    destination.balance = destination.balance + amount;
+  if (accounts[origin]) {
+    const originAcc = accounts[origin];
+    const destinationAcc = accounts[destination] ?? { balance: 0 };
+
+    originAcc.balance = originAcc.balance - amount;
+    destinationAcc.balance = destinationAcc.balance + amount;
     return {
-      origin: { id: origin, balance: accounts[origin].balance },
-      destination: {
-        id: destination,
-        balance: accounts[destination].balance,
+      body: {
+        origin: { id: origin, balance: originAcc.balance },
+        destination: {
+          id: destination,
+          balance: destinationAcc.balance,
+        },
       },
+      status: 201,
     };
   } else {
     return notFoundResponse;
@@ -33,10 +37,10 @@ function transfer({ origin, destination, amount }) {
 
 function deposit({ destination, amount }) {
   if (accounts[destination]) {
-    const currAmount = accounts[destination].amount;
-    accounts[destination] = { amount: currAmount + amount };
+    const currAmount = accounts[destination].balance;
+    accounts[destination] = { balance: currAmount + amount };
   } else {
-    accounts[destination] = { amount, type };
+    accounts[destination] = { balance: amount };
   }
   return {
     body: {
@@ -50,9 +54,9 @@ function deposit({ destination, amount }) {
 }
 
 function withdraw({ origin, amount }) {
-  const currAmount = accounts[origin].amount;
   if (accounts[origin]) {
-    accounts[origin] = { amount: currAmount - amount };
+    const currAmount = accounts[origin].balance;
+    accounts[origin] = { balance: currAmount - amount };
     return {
       body: {
         origin: {

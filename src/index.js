@@ -18,9 +18,9 @@ app.get("/balance", (req, res) => {
   const id = req.query.account_id;
   const account_balance = getAccountBalance(id);
   if (account_balance) {
-    res.status(200).send(account_balance);
+    res.status(200).send(account_balance.toString());
   } else {
-    res.status(200).send("OK");
+    res.status(404).send("0");
   }
 });
 
