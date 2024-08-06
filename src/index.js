@@ -25,13 +25,10 @@ app.get("/balance", (req, res) => {
 });
 
 app.post("/event", (req, res) => {
-  const { type, destination, amount } = req.body;
-
-  createOrUpdateAccount(type, destination, amount);
+  const { status, body } = createOrUpdateAccount(req.body);
+  res.status(status).send(body);
 });
 
 app.listen(3001, () => {
   console.log("Everything good");
 });
-
-//()

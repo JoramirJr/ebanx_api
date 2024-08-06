@@ -1,6 +1,9 @@
 let accounts = {};
 
-let id_counter = 0;
+const notFoundResponse = {
+  body: 0,
+  status: 404,
+};
 
 function resetAccounts() {
   accounts = {};
@@ -10,24 +13,68 @@ function getAccountBalance(account_id) {
   return accounts[account_id]?.balance;
 }
 
-function createOrUpdateAccount(type, destination, amount) {
+function transfer({ origin, destination, amount }) {
+  if (accounts[origin] && accounts[destination]) {
+    const origin = accounts[origin];
+    const destination = accounts[destination];
+    origin.balance = origin.balance - amount;
+    destination.balance = destination.balance + amount;
+    return {
+      origin: { id: origin, balance: accounts[origin].balance },
+      destination: {
+        id: destination,
+        balance: accounts[destination].balance,
+      },
+    };
+  } else {
+    return notFoundResponse;
+  }
+}
+
+function deposit({ destination, amount }) {
   if (accounts[destination]) {
     const currAmount = accounts[destination].amount;
-    if (type === "deposit") {
-      accounts[destination] = { amount: currAmount + amount };
-    } else if (type === "withdraw") {
-      accounts[destination] = { amount: currAmount - amount };
-    }
+    accounts[destination] = { amount: currAmount + amount };
   } else {
-    if (type === "deposit") {
-      accounts[destination] = { amount, type };
-    } else if (type === "withdraw"){
-      return;
-    }
+    accounts[destination] = { amount, type };
   }
   return {
-    destination: { id: destination, balance: accounts[destination].balance },
+    body: {
+      destination: {
+        id: destination,
+        balance: accounts[destination].balance,
+      },
+    },
+    status: 201,
   };
+}
+
+function withdraw({ origin, amount }) {
+  const currAmount = accounts[origin].amount;
+  if (accounts[origin]) {
+    accounts[origin] = { amount: currAmount - amount };
+    return {
+      body: {
+        origin: {
+          id: origin,
+          balance: accounts[origin].balance,
+        },
+      },
+      status: 201,
+    };
+  } else {
+    return notFoundResponse;
+  }
+}
+
+function createOrUpdateAccount({ type, origin, destination, amount }) {
+  if (type === "deposit") {
+    return deposit({ destination, amount });
+  } else if (type === "withdraw") {
+    return withdraw({ origin, amount });
+  } else {
+    return transfer({ origin, destination, amount });
+  }
 }
 
 module.exports = { resetAccounts, getAccountBalance, createOrUpdateAccount };
