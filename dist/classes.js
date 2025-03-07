@@ -4,7 +4,12 @@ exports.AccountsHandler = exports.Account = void 0;
 const utils_1 = require("./utils");
 class Account {
     constructor(id, initialBalance) {
-        //
+        /*
+          as the test script assumes the existence of an account with id "300", without first creating it (see line 8, app.ts),
+          I implemented this constructor with the "id" parameter (literally, just because of the aforementioned scenario); otherwise,
+          I'd probably implement the id generation as shown below, using the uuid lib to create an universally unique
+          identifier for each account
+        */
         // this.id = uuidv4();
         this.id = id;
         this.balance = initialBalance;
@@ -22,7 +27,7 @@ class Account {
         }
         if (amount <= this.balance) {
             this.balance -= amount;
-            return utils_1.Result.success(this.balance);
+            return utils_1.Result.success(amount);
         }
         else {
             return utils_1.Result.failure("The balance doesn't have enough funds");
@@ -34,49 +39,37 @@ class AccountsHandler {
     static reset() {
         AccountsHandler.accounts.clear();
         return AccountsHandler.accounts.size === 0
-            ? { status: utils_1.OperationStatus.Success, value: null }
-            : { status: utils_1.OperationStatus.Failure, error: "Reset has failed" };
+            ? utils_1.Result.success(null)
+            : utils_1.Result.failure("Reset has failed");
     }
     static getAccount(id) {
         const result = AccountsHandler.accounts.get(id);
         if (result) {
-            return { status: utils_1.OperationStatus.Success, value: result };
+            return utils_1.Result.success(result);
         }
         else {
-            return {
-                status: utils_1.OperationStatus.Failure,
-                error: "Identificador não corresponde a nenhuma conta",
-            };
+            return utils_1.Result.failure("Identificador não corresponde a nenhuma conta");
         }
     }
     static transfer(source, target, amount) {
         const withdrawOperation = source.withdraw(amount);
         if (withdrawOperation.status === utils_1.OperationStatus.Success) {
             const depositedAmount = target.deposit(withdrawOperation.value);
-            return { status: utils_1.OperationStatus.Success, value: depositedAmount };
+            return utils_1.Result.success(depositedAmount);
         }
-        return { status: utils_1.OperationStatus.Failure, error: withdrawOperation.error };
+        return utils_1.Result.failure(withdrawOperation.error);
     }
     static insertAccount(account) {
         const accountId = account.id;
         if (AccountsHandler.accounts.has(accountId)) {
-            return {
-                status: utils_1.OperationStatus.Failure,
-                error: "Account already exists",
-            };
+            utils_1.Result.failure("Account already exists");
         }
         AccountsHandler.accounts.set(accountId, account);
         if (AccountsHandler.accounts.has(accountId)) {
-            return {
-                status: utils_1.OperationStatus.Success,
-                value: AccountsHandler.accounts,
-            };
+            return utils_1.Result.success(AccountsHandler.accounts);
         }
         else {
-            return {
-                status: utils_1.OperationStatus.Failure,
-                error: "Account insertion has failed",
-            };
+            return utils_1.Result.failure("Account insertion has failed");
         }
     }
 }

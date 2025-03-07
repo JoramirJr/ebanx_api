@@ -8,7 +8,7 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const classes_1 = require("./classes");
 const utils_1 = require("./utils");
 const requestValidators_1 = require("./requestValidators");
-//
+//this function solely exists because the test script assumes the existence of an account with id "300", without first creating it
 function generateAccountForTestScript() {
     const testAccount = new classes_1.Account("300", 0);
     classes_1.AccountsHandler.insertAccount(testAccount);
@@ -29,7 +29,6 @@ app.post("/reset", (_, res) => {
 app.get("/balance", requestValidators_1.RequestValidator.validateGetRequest(["account_id"]), (req, res) => {
     const accountId = req.query.account_id;
     const result = classes_1.AccountsHandler.getAccount(accountId);
-    console.log("result", result);
     if (result.status === utils_1.OperationStatus.Failure) {
         res.status(404).send("0");
     }
@@ -41,7 +40,7 @@ app.post("/event", requestValidators_1.RequestValidator.validatePostRequest(), (
     if (req.body.type === "deposit") {
         const result = classes_1.AccountsHandler.getAccount(req.body.destination);
         if (result.status === utils_1.OperationStatus.Success) {
-            const newBalance = result.value.deposit(req.body.amount);
+            result.value.deposit(req.body.amount);
             res.status(201).json({
                 destination: {
                     id: result.value.id,
@@ -74,6 +73,7 @@ app.post("/event", requestValidators_1.RequestValidator.validatePostRequest(), (
             }
         }
         else {
+            console.log("am i here");
             res.status(404).send("0");
         }
     }
@@ -94,6 +94,9 @@ app.post("/event", requestValidators_1.RequestValidator.validatePostRequest(), (
                         balance: getDestinationAccResult.value.getBalance(),
                     },
                 });
+            }
+            else {
+                res.status(500).send(result.error);
             }
         }
         else {

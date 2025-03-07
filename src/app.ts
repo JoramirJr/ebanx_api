@@ -5,7 +5,7 @@ import { Account, AccountsHandler } from "./classes";
 import { OperationStatus } from "./utils";
 import { RequestValidator } from "./requestValidators";
 
-//
+//this function solely exists because the test script assumes the existence of an account with id "300", without first creating it
 function generateAccountForTestScript(): void {
   const testAccount = new Account("300", 0);
   AccountsHandler.insertAccount(testAccount);
@@ -35,8 +35,6 @@ app.get(
     const accountId = req.query.account_id as string;
     const result = AccountsHandler.getAccount(accountId);
 
-    console.log("result", result);
-
     if (result.status === OperationStatus.Failure) {
       res.status(404).send("0");
     } else {
@@ -50,7 +48,7 @@ app.post("/event", RequestValidator.validatePostRequest(), (req, res) => {
     const result = AccountsHandler.getAccount(req.body.destination);
 
     if (result.status === OperationStatus.Success) {
-      const newBalance = result.value.deposit(req.body.amount);
+      result.value.deposit(req.body.amount);
       res.status(201).json({
         destination: {
           id: result.value.id,
@@ -81,11 +79,14 @@ app.post("/event", RequestValidator.validatePostRequest(), (req, res) => {
         res.status(404).send(result.error);
       }
     } else {
+      console.log("am i here");
       res.status(404).send("0");
     }
   } else if (req.body.type === "transfer") {
     const getOriginAccResult = AccountsHandler.getAccount(req.body.origin);
-    const getDestinationAccResult = AccountsHandler.getAccount(req.body.destination);
+    const getDestinationAccResult = AccountsHandler.getAccount(
+      req.body.destination
+    );
 
     if (
       getOriginAccResult.status === OperationStatus.Success &&
@@ -108,6 +109,8 @@ app.post("/event", RequestValidator.validatePostRequest(), (req, res) => {
             balance: getDestinationAccResult.value.getBalance(),
           },
         });
+      } else {
+        res.status(500).send(result.error);
       }
     } else {
       res.status(404).send("0");

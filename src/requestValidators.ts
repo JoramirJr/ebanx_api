@@ -1,23 +1,4 @@
 import { Request, Response, NextFunction } from "express";
-
-interface PayloadCommon {
-  type: "withdraw" | "transfer" | "deposit";
-  amount: number;
-}
-
-interface CreateDepositAccountPayload extends PayloadCommon {
-  destination: number;
-}
-
-interface WithdrawAccountPayload extends PayloadCommon {
-  origin: number;
-}
-
-interface TransferAccountPayload extends PayloadCommon {
-  origin: number;
-  destination: number;
-}
-
 export class RequestValidator {
   static validateGetRequest(
     requiredParams: string[]
