@@ -16,7 +16,16 @@ class RequestValidator {
     }
     static validatePostRequest() {
         return (req, res, next) => {
-            const missingParams = requiredParams.filter((param) => !req.query[param]);
+            if (typeof req.body === "object" &&
+                req.body !== null &&
+                !Array.isArray(req.body)) {
+                return res.status(400).json({
+                    success: false,
+                    error: `Body badly formatted. A JSON object is required`,
+                });
+            }
+            if (req.body.type === "deposit" && req.body) {
+            }
             if (missingParams.length > 0) {
                 return res.status(400).json({
                     success: false,
