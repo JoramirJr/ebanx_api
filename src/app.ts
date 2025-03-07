@@ -10,7 +10,7 @@ app.post("/reset", (_, res) => {
   const result = AccountsHandler.reset();
 
   if (result.status === OperationStatus.Success) {
-    res.status(200);
+    res.status(200).send('OK');
   } else {
     res.status(500);
   }
@@ -24,7 +24,7 @@ app.get(
     const account = AccountsHandler.accounts.get(accountId);
 
     if (!account) {
-      res.status(404).send(0);
+      res.status(404).send("0");
     } else {
       res.status(200).send(account.getBalance());
     }

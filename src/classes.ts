@@ -30,7 +30,7 @@ export class Account {
 }
 
 export class AccountsHandler {
-  static accounts: Map<string, Account>;
+  static accounts: Map<string, Account> = new Map();
 
   static reset(): OperationResult<null> {
     AccountsHandler.accounts.clear();
@@ -52,7 +52,9 @@ export class AccountsHandler {
     }
     return { status: OperationStatus.Failure, error: withdrawOperation.error };
   }
-  static insertAccount(account: Account): OperationResult<Map<string, Account>> {
+  static insertAccount(
+    account: Account
+  ): OperationResult<Map<string, Account>> {
     const accountId = account.id.toString();
     if (AccountsHandler.accounts.has(accountId)) {
       return {
