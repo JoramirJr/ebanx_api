@@ -16,20 +16,37 @@ class RequestValidator {
     }
     static validatePostRequest() {
         return (req, res, next) => {
-            if (typeof req.body === "object" &&
+            if (!(typeof req.body === "object" &&
                 req.body !== null &&
-                !Array.isArray(req.body)) {
+                !Array.isArray(req.body))) {
                 return res.status(400).json({
                     success: false,
                     error: `Body badly formatted. A JSON object is required`,
                 });
             }
-            if (req.body.type === "deposit" && req.body) {
-            }
-            if (missingParams.length > 0) {
+            if (!(req.body.type === "deposit" &&
+                "destination" in req.body &&
+                "amount" in req.body)) {
                 return res.status(400).json({
                     success: false,
-                    error: `Missing required parameters: ${missingParams.join(", ")}`,
+                    error: `Body badly formatted. Object missing fields.`,
+                });
+            }
+            if (!(req.body.type === "withdraw" &&
+                "origin" in req.body &&
+                "amount" in req.body)) {
+                return res.status(400).json({
+                    success: false,
+                    error: `Body badly formatted. Object missing fields.`,
+                });
+            }
+            if (!(req.body.type === "transfer" &&
+                "origin" in req.body &&
+                "destination" in req.body &&
+                "amount" in req.body)) {
+                return res.status(400).json({
+                    success: false,
+                    error: `Body badly formatted. Object missing fields.`,
                 });
             }
             next();

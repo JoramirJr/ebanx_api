@@ -5,6 +5,12 @@ import { Account, AccountsHandler } from "./classes";
 import { OperationStatus } from "./utils";
 import { RequestValidator } from "./requestValidators";
 
+//
+function generateAccountsForTestScript(): void {
+  const testAccount = new Account("300", 0);
+  AccountsHandler.insertAccount(testAccount);
+}
+
 const app = express();
 const port = 3000;
 
@@ -25,17 +31,51 @@ app.get(
   RequestValidator.validateGetRequest(["accountId"]),
   (req, res) => {
     const accountId = req.query.accountId as string;
-    const account = AccountsHandler.accounts.get(accountId);
+    const result = AccountsHandler.getAccount(accountId);
 
-    if (!account) {
+    if (result.status === OperationStatus.Failure) {
       res.status(404).send("0");
     } else {
-      res.status(200).send(account.getBalance());
+      res.status(200).send(result.value.getBalance());
     }
   }
 );
 
-app.post("/event");
+app.post("/event", RequestValidator.validatePostRequest(), (req, res) => {
+  if (req.body.type === "deposit") {
+    const result = AccountsHandler.getAccount(req.body.destination);
+
+    if (result.status === OperationStatus.Success) {
+      result.value.deposit(req.body.amount);
+      res.status(201).json({
+        destination: result.value.id,
+        balance: result.value.getBalance(),
+      });
+    } else {
+      const account = new Account(req.body.destination, req.body.amount);
+      res.status(201).json({
+        destination: { id: account.id, balance: account.getBalance() },
+      });
+    }
+  } else if (req.body.type === "withdraw") {
+    const getAccResult = AccountsHandler.getAccount(req.body.origin);
+
+    if (getAccResult.status === OperationStatus.Success) {
+      const result = getAccResult.value.withdraw(req.body.amount);
+
+        
+      res.status(201).json({
+        destination: result.value.id,
+        balance: result.value.getBalance(),
+      });
+    } else {
+      const account = new Account(req.body.destination, req.body.amount);
+      res.status(201).json({
+        destination: { id: account.id, balance: account.getBalance() },
+      });
+    }
+  }
+});
 
 // const accountId = req.query.accountId;
 // const account = new Account(id: accountId, ini)

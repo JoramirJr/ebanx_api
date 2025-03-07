@@ -4,6 +4,8 @@ exports.AccountsHandler = exports.Account = void 0;
 const utils_1 = require("./utils");
 class Account {
     constructor(id, initialBalance) {
+        //
+        // this.id = uuidv4();
         this.id = id;
         this.balance = initialBalance;
     }
@@ -11,7 +13,7 @@ class Account {
         return this.balance;
     }
     deposit(amount) {
-        return amount > 0 ? (this.balance = amount) : this.balance;
+        return amount > 0 ? (this.balance += amount) : this.balance;
     }
     withdraw(amount) {
         if (amount > 0) {
@@ -34,6 +36,18 @@ class AccountsHandler {
             ? { status: utils_1.OperationStatus.Success, value: null }
             : { status: utils_1.OperationStatus.Failure, error: "Reset has failed" };
     }
+    static getAccount(id) {
+        const result = AccountsHandler.accounts.get(id);
+        if (result) {
+            return { status: utils_1.OperationStatus.Success, value: result };
+        }
+        else {
+            return {
+                status: utils_1.OperationStatus.Failure,
+                error: "Identificador não corresponde a nenhuma conta",
+            };
+        }
+    }
     static transfer(source, target, amount) {
         const withdrawOperation = source.withdraw(amount);
         if (withdrawOperation.status === utils_1.OperationStatus.Success) {
@@ -43,7 +57,7 @@ class AccountsHandler {
         return { status: utils_1.OperationStatus.Failure, error: withdrawOperation.error };
     }
     static insertAccount(account) {
-        const accountId = account.id.toString();
+        const accountId = account.id;
         if (AccountsHandler.accounts.has(accountId)) {
             return {
                 status: utils_1.OperationStatus.Failure,
