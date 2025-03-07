@@ -3,9 +3,9 @@ export enum OperationStatus {
   Failure,
 }
 
-type Success = {
+type Success<T> = {
   status: OperationStatus.Success;
-  value: number;
+  value: T;
 };
 
 type Failure = {
@@ -13,13 +13,13 @@ type Failure = {
   error: string;
 };
 
-export type OperationResult = Success | Failure;
+export type OperationResult<T> = Success<T> | Failure;
 
 export class Result {
-  static success(value: number): OperationResult {
+  static success<T>(value: T): OperationResult<T> {
     return { status: OperationStatus.Success, value };
   }
-  static failure(error: string): OperationResult {
+  static failure<T>(error: string): OperationResult<T> {
     return { status: OperationStatus.Failure, error };
   }
 }
