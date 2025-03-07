@@ -13,14 +13,15 @@ class Account {
         return this.balance;
     }
     deposit(amount) {
-        return amount > 0 ? (this.balance += amount) : this.balance;
+        this.balance += amount;
+        return this.balance;
     }
     withdraw(amount) {
-        if (amount > 0) {
+        if (amount < 0) {
             return utils_1.Result.failure("Amount to be withdrawn should be greater than zero");
         }
-        if (amount >= this.balance) {
-            this.balance -= this.balance - amount;
+        if (amount <= this.balance) {
+            this.balance -= amount;
             return utils_1.Result.success(this.balance);
         }
         else {

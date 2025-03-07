@@ -53,44 +53,33 @@ export class RequestValidator {
         });
       }
 
-      if (
-        !(
-          req.body.type === "deposit" &&
-          "destination" in req.body &&
-          "amount" in req.body
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          error: `Body badly formatted. Object missing fields.`,
-        });
-      }
-
-      if (
-        !(
-          req.body.type === "withdraw" &&
-          "origin" in req.body &&
-          "amount" in req.body
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          error: `Body badly formatted. Object missing fields.`,
-        });
-      }
-
-      if (
-        !(
-          req.body.type === "transfer" &&
-          "origin" in req.body &&
-          "destination" in req.body &&
-          "amount" in req.body
-        )
-      ) {
-        return res.status(400).json({
-          success: false,
-          error: `Body badly formatted. Object missing fields.`,
-        });
+      if (req.body.type === "deposit") {
+        if (!("destination" in req.body && "amount" in req.body)) {
+          return res.status(400).json({
+            success: false,
+            error: `Body badly formatted. Object missing fields.`,
+          });
+        }
+      } else if (req.body.type === "withdraw") {
+        if (!("origin" in req.body && "amount" in req.body)) {
+          return res.status(400).json({
+            success: false,
+            error: `Body badly formatted. Object missing fields.`,
+          });
+        }
+      } else if (req.body.type === "trasfer") {
+        if (
+          !(
+            "origin" in req.body &&
+            "destination" in req.body &&
+            "amount" in req.body
+          )
+        ) {
+          return res.status(400).json({
+            success: false,
+            error: `Body badly formatted. Object missing fields.`,
+          });
+        }
       }
       next();
     };

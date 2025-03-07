@@ -16,16 +16,17 @@ export class Account {
     return this.balance;
   }
   deposit(amount: number): number {
-    return amount > 0 ? (this.balance += amount) : this.balance;
+    this.balance += amount;
+    return this.balance;
   }
   withdraw(amount: number): OperationResult<number> {
-    if (amount > 0) {
+    if (amount < 0) {
       return Result.failure(
         "Amount to be withdrawn should be greater than zero"
       );
     }
-    if (amount >= this.balance) {
-      this.balance -= this.balance - amount;
+    if (amount <= this.balance) {
+      this.balance -= amount;
       return Result.success(this.balance);
     } else {
       return Result.failure("The balance doesn't have enough funds");
