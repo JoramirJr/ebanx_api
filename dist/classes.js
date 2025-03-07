@@ -3,10 +3,18 @@ class Account {
         this.id = id;
         this.balance = initialBalance;
     }
-    getBalance() { }
-    deposit() { }
-    withdraw() { }
+    getBalance(id) {
+        return this.balance;
+    }
+    deposit(id, amount) {
+        return amount > 0 ? (this.balance = amount) : this.balance;
+    }
+    withdraw(id, amount) { }
 }
 class AccountsHandler {
+    static reset() {
+        AccountsHandler.accounts.clear();
+    }
+    static transfer(source, target) { }
 }
 //# sourceMappingURL=classes.js.map
