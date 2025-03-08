@@ -8,14 +8,16 @@ const body_parser_1 = __importDefault(require("body-parser"));
 const classes_1 = require("./classes");
 const utils_1 = require("./utils");
 const requestValidators_1 = require("./requestValidators");
-//this function solely exists because the test script assumes the existence of an account with id "300", without first creating it
+const app = (0, express_1.default)();
+const port = 3000;
+/*
+  this function solely exists (and its called after the reset, line 30) because the test script assumes
+  the existence of an account with id "300", without first creating it, for subsequent tests
+*/
 function generateAccountForTestScript() {
     const testAccount = new classes_1.Account("300", 0);
     classes_1.AccountsHandler.insertAccount(testAccount);
 }
-generateAccountForTestScript();
-const app = (0, express_1.default)();
-const port = 3000;
 app.use(body_parser_1.default.json());
 app.post("/reset", (_, res) => {
     const result = classes_1.AccountsHandler.reset();
@@ -25,6 +27,7 @@ app.post("/reset", (_, res) => {
     else {
         res.status(500);
     }
+    generateAccountForTestScript();
 });
 app.get("/balance", requestValidators_1.RequestValidator.validateGetRequest(["account_id"]), (req, res) => {
     const accountId = req.query.account_id;
@@ -73,7 +76,6 @@ app.post("/event", requestValidators_1.RequestValidator.validatePostRequest(), (
             }
         }
         else {
-            console.log("am i here");
             res.status(404).send("0");
         }
     }

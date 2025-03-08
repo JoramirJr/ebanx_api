@@ -5,16 +5,17 @@ import { Account, AccountsHandler } from "./classes";
 import { OperationStatus } from "./utils";
 import { RequestValidator } from "./requestValidators";
 
-//this function solely exists because the test script assumes the existence of an account with id "300", without first creating it
+const app = express();
+const port = 3000;
+
+/*
+  this function solely exists (and its called after the reset, line 30) because the test script assumes 
+  the existence of an account with id "300", without first creating it, for subsequent tests
+*/
 function generateAccountForTestScript(): void {
   const testAccount = new Account("300", 0);
   AccountsHandler.insertAccount(testAccount);
 }
-
-generateAccountForTestScript();
-
-const app = express();
-const port = 3000;
 
 app.use(bodyParser.json());
 
@@ -26,6 +27,7 @@ app.post("/reset", (_, res) => {
   } else {
     res.status(500);
   }
+  generateAccountForTestScript();
 });
 
 app.get(
@@ -79,7 +81,6 @@ app.post("/event", RequestValidator.validatePostRequest(), (req, res) => {
         res.status(404).send(result.error);
       }
     } else {
-      console.log("am i here");
       res.status(404).send("0");
     }
   } else if (req.body.type === "transfer") {

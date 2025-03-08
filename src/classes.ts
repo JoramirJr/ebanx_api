@@ -87,4 +87,7 @@ export class AccountsHandler {
       return Result.failure("Account insertion has failed");
     }
   }
+  static listAccounts(): Map<string, Account> {
+    return AccountsHandler.accounts
+  }
 }

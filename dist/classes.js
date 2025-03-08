@@ -72,6 +72,9 @@ class AccountsHandler {
             return utils_1.Result.failure("Account insertion has failed");
         }
     }
+    static listAccounts() {
+        return AccountsHandler.accounts;
+    }
 }
 exports.AccountsHandler = AccountsHandler;
 AccountsHandler.accounts = new Map();
